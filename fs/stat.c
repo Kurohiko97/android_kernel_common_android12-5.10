@@ -43,7 +43,7 @@ extern void susfs_sus_ino_for_generic_fillattr(unsigned long ino, struct kstat *
 void generic_fillattr(struct inode *inode, struct kstat *stat)
 {
 #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-	if (likely(susfs_is_current_non_root_user_app_proc()) &&
+	if (likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC) &&
 			unlikely(inode->i_state & INODE_STATE_SUS_KSTAT)) {
 		susfs_sus_ino_for_generic_fillattr(inode->i_ino, stat);
 		stat->mode = inode->i_mode;
@@ -206,7 +206,7 @@ static int vfs_statx(int dfd, const char __user *filename, int flags,
 #endif
 
 #ifdef CONFIG_KSU_SUSFS_SUS_SU
-	if (likely(susfs_is_sus_su_hooks_enabled)) {
+	if (susfs_is_sus_su_hooks_enabled) {
 		ksu_handle_stat(&dfd, &filename, &flags);
 	}
 #endif
@@ -230,7 +230,7 @@ retry:
 	error = vfs_getattr(&path, stat, request_mask, flags);
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 	mnt = real_mount(path.mnt);
-	if (likely(susfs_is_current_non_root_user_app_proc())) {
+	if (likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC)) {
 		for (; mnt->mnt_id >= DEFAULT_SUS_MNT_ID; mnt = mnt->mnt_parent) {}
 	}
 	stat->mnt_id = mnt->mnt_id;
