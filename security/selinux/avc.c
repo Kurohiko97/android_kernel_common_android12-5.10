@@ -736,6 +736,7 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
 
 	rc = security_sid_to_context_stack(sad->state, sad->tsid, &scontext,
 				     &scontext_len);
+
 #ifdef CONFIG_KSU_SUSFS
        if (unlikely(sad->tsid == susfs_ksu_sid && susfs_is_avc_log_spoofing_enabled)) {
               if (rc)
@@ -745,6 +746,7 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
               goto bypass_orig_flow;
        }
 #endif
+
 	if (rc)
 		audit_log_format(ab, " tsid=%d", sad->tsid);
 	else
